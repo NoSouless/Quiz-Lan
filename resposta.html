@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Responder</title>
+</head>
+<body>
+
+<h2 id="question">Aguardando pergunta...</h2>
+<div id="options"></div>
+
+<script>
+const ws = new WebSocket("wss://ominous-xylophone-p9vp77v4g4394gw-8765.app.github.dev");
+
+ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+
+    if (data.type === "question") {
+        question.innerText = data.question;
+
+        options.innerHTML = "";
+
+        data.options.forEach(opt => {
+            const btn = document.createElement("button");
+            btn.innerText = opt;
+
+            btn.onclick = () => {
+                ws.send(JSON.stringify({
+                    type: "answer",
+                    answer: opt
+                }));
+            };
+
+            options.appendChild(btn);
+            options.appendChild(document.createElement("br"));
+        });
+    }
+};
+</script>
+
+</body>
+</html>

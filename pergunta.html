@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pergunta</title>
+</head>
+<body>
+
+<h2>Criar Pergunta</h2>
+
+<input id="q" placeholder="Pergunta"><br><br>
+<input id="o1" placeholder="Opção 1"><br>
+<input id="o2" placeholder="Opção 2"><br>
+<input id="o3" placeholder="Opção 3"><br><br>
+
+<button onclick="send()">Enviar</button>
+
+<script>
+const ws = new WebSocket("wss://ominous-xylophone-p9vp77v4g4394gw-8765.app.github.dev");
+
+function send() {
+    const data = {
+        type: "question",
+        question: q.value,
+        options: [o1.value, o2.value, o3.value]
+    };
+
+    ws.send(JSON.stringify(data));
+}
+</script>
+
+</body>
+</html>

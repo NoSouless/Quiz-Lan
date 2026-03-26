@@ -1,0 +1,5 @@
+1. Atualizar o pip com python3 -m pip install --upgrade pip
+2. Instalar a biblioteca websockets com o comando "pip install websockets"
+3. Criar arquivo index.py para lidar com as requisições
+4. rodar python index.py no terminal
+5. tornar a conexão pública
