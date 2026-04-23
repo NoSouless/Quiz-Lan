@@ -1,0 +1,35 @@
+Esquema de pastas e páginas:
+------------------------------
+1. PROFESSOR
+
+1.1. Criação de perguntas
+1.1.1. Professor cria as perguntas com até 4 alternativas, podendo adicionar ou remover tanto perguntas como alternativas;
+1.1.2. No final, o professor clica em "Exportar" gerando um JSON ou XML (À DEFINIR) para que ele possa dar carga eventualmente;
+1.1.3. O professor pode dar carga de um arquivo de questões já criado para edita-lo.
+
+1.2. Novo Jogo
+1.2.1 Professor importa as perguntas do arquivo criado;
+1.2.2. Professor recebe o código da sala e aguarda os jogadores entrarem;
+1.2.3. botão de "Iniciar Jogo".
+
+1.3. Rodada
+1.3.1. A pergunta é mostrada na tela, junto com as possíveis respostas e seus símbolos e um timer;
+1.3.2. Ao final da rodada deverá aparecer a resposta correta, junto com o rank dos jogadores com suas respectivas pontuações;
+1.3.3. O professor deverá clicar em "próxima rodada" para seguir.
+
+1.4 Placar Final
+1.4.1. Após o término da última rodada, deverá aparecer o placar final de todos os jogadores em rank;
+1.4.2. O professor pode começar um novo jogo clicando em "Novo Jogo", reiniciando o fluxo.
+-------------------------------
+2. ALUNO
+
+2.1. Entrar
+2.1.1. O aluno deverá preencher seu nome e o código da sala em que ele irá entrar;
+
+2.2. Rodada
+2.2.1. O aluno receberá formas e cores como alternativas, junto com um timer de quanto tempo para ele responder à pergunta.
+2.2.2. Após o término da rodada, o aluno receberá sua colocação da rodada (se foi o primeiro ou segundo à receber), junto com sua colocação final até o momento.
+
+2.3. Colocação Final
+2.3.1. O aluno poderá ver a sua colocação final após o final do jogo;
+2.3.2. Ele pode entrar em outro jogo com o botão "Entrar em outro jogo", reiniciaod o fluxo.
