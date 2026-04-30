@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Importar Quiz</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="css/novoJogo.css">
+</head>
+
+<body>
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-7">
+
+            <h2 class="text-center text-white mb-4">
+                Importar Quiz
+            </h2>
+
+            <input type="file" class="form-control mb-3" id="fileInput" accept=".json">
+
+            <button class="btn btn-primary w-100 mb-3" onclick="loadJSON()">
+                Carregar JSON
+            </button>
+
+            <div id="quizContainer"></div>
+
+        </div>
+    </div>
+</div>
+
+<script src="js/novoJogo.js"></script>
+
+</body>
+</html>
