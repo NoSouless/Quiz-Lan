@@ -1,0 +1,42 @@
+body {
+    background: linear-gradient(135deg, #46178f, #6c2bd9);
+}
+
+.card {
+    border: none;
+}
+
+.option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 12px 14px;
+    margin-bottom: 10px;
+
+    border-radius: 10px;
+    border: 2px solid #e0e0e0;
+
+    background: white;
+    cursor: default;
+
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.option:hover {
+    transform: scale(1.01);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.option.correct {
+    background: linear-gradient(135deg, #28c76f, #20b15a);
+    border-color: #28c76f;
+    color: white;
+    box-shadow: 0 6px 15px rgba(40, 199, 111, 0.3);
+}
+
+.option span {
+    margin-left: 10px;
+    font-size: 16px;
+}
