@@ -1,0 +1,41 @@
+body {
+    background: linear-gradient(135deg, #46178f, #6c2bd9);
+}
+
+.card {
+    border: none;
+}
+
+.option-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    cursor: pointer;
+}
+
+.option-check {
+    width: 22px;
+    height: 22px;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+    font-weight: bold;
+    color: white;
+}
+
+input[type="radio"] {
+    display: none;
+}
+
+input[type="radio"]:checked + .option-check {
+    background: #28c76f;
+    border-color: #28c76f;
+}
+
+input[type="radio"]:checked + .option-check::after {
+    content: "✓";
+}
