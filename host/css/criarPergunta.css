@@ -17,14 +17,17 @@ body {
 .option-check {
     width: 22px;
     height: 22px;
+    min-width: 22px;
+    min-height: 22px;
     border: 2px solid #ccc;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: 0.2s;
+    transition: 0.1s;
     font-weight: bold;
     color: white;
+    flex-shrink: 0;
 }
 
 input[type="radio"] {
