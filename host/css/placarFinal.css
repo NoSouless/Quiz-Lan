@@ -1,0 +1,93 @@
+
+body {
+    background: linear-gradient(135deg, #46178f, #6c2bd9);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.placar-container {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 30px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.placar-titulo {
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 25px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+
+.ranking-list {
+    list-style: none;
+    padding: 0;
+}
+
+.ranking-item {
+    background: white;
+    color: #46178f;
+    margin-bottom: 10px;
+    padding: 15px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    transition: transform 0.2s;
+}
+
+.ranking-item:hover {
+    transform: scale(1.02);
+}
+
+
+.ranking-item:first-child {
+    background: #ffcf2d; 
+    color: #333;
+}
+
+.posicao {
+    background: #6c2bd9;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9em;
+}
+
+.ranking-item:first-child .posicao {
+    background: #333;
+}
+
+
+.btn-novo-jogo {
+    display: block;
+    width: 100%;
+    margin-top: 25px;
+    padding: 15px;
+    background-color: #28c76f; 
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn-novo-jogo:hover {
+    background-color: #21a35a;
+}
