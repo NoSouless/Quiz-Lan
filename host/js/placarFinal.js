@@ -13,21 +13,21 @@ function renderizarPlacar(jogadores) {
 
     jogadores.forEach((jogador, index) => {
         const item = document.createElement("li");
-        
-       
+    
         item.className = "ranking-item";
-        
-        
+    
+        let icone = "";
+    
         if (index === 0) {
             item.classList.add("vencedor");
+            icone = '<i class="bi bi-award"></i> ';
         }
-
-       
+    
         item.innerHTML = `
-            <span>${index + 1}º ${jogador.nome}</span>
+            <span>${icone}${index + 1}º ${jogador.nome}</span>
             <span>${jogador.pontos} pts</span>
         `;
-
+    
         listaRanking.appendChild(item);
     });
 }

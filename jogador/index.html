@@ -33,18 +33,26 @@
     </div>
 
     <script>
+        let ws = null;
+        const STORAGE_ROOM = "quizRoomCode";
+        const STORAGE_NAME = "quizPlayerName";
+        const STORAGE_ID = "quizPlayerId";
+
         window.addEventListener("load", () => {
             const codigoSalaInput = document.getElementById("codigoSalaInput");
             const nomeJogadorInput = document.getElementById("nomeJogadorInput");
             const entrarBtn = document.getElementById("entrarBtn");
 
-            codigoSalaInput.addEventListener("input", () => {
-                entrarBtn.disabled = !codigoSalaInput.value.trim() || !nomeJogadorInput.value.trim();
-            });
+            const storedRoomCode = sessionStorage.getItem(STORAGE_ROOM);
+            const storedPlayerName = sessionStorage.getItem(STORAGE_NAME);
 
-            nomeJogadorInput.addEventListener("input", () => {
+            function updateButtonState() {
                 entrarBtn.disabled = !codigoSalaInput.value.trim() || !nomeJogadorInput.value.trim();
-            });
+            }
+
+            codigoSalaInput.addEventListener("input", updateButtonState);
+            nomeJogadorInput.addEventListener("input", updateButtonState);
+            updateButtonState();
 
             entrarBtn.addEventListener("click", () => {
                 const codigoSala = codigoSalaInput.value.trim();
@@ -55,43 +63,62 @@
                     return;
                 }
 
-                if(!connectSocket()) return;
-                ws.onopen = () => {
-                    ws.send(JSON.stringify({
-                        type: "join_room",
-                        code: codigoSala,
-                        name: nomeJogador
-                    }));
-                };
-
-                ws.onmessage = (event) => {
-                    try {
-                        const data = JSON.parse(event.data);
-                        handleServerMessage(data);
-                    } catch (err) {
-                        console.error("Mensagem inválida do servidor", err);
-                    }
-                };
+                const playerId = sessionStorage.getItem(STORAGE_ID);
+                attemptJoin(codigoSala, nomeJogador, playerId);
             });
 
+            if (storedRoomCode && storedPlayerName) {
+                const playerId = sessionStorage.getItem(STORAGE_ID);
+                attemptJoin(storedRoomCode, storedPlayerName, playerId);
+            }
         });
 
         function connectSocket() {
             ws = new WebSocket("ws://localhost:8765");
+
             ws.onerror = (error) => {
                 console.error("Erro ao conectar ao WebSocket:", error);
-                alert("Não foi possível conectar ao servidor. Tente novamente mais tarde.");
+                showMessage("Não foi possível conectar ao servidor. Tente novamente mais tarde.", true);
                 return false;
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    handleServerMessage(data);
+                } catch (err) {
+                    console.error("Mensagem inválida do servidor", err);
+                }
             };
 
             return true;
         }
 
+        function attemptJoin(codigoSala, nomeJogador, playerId) {
+            if (!connectSocket()) {
+                return;
+            }
+
+            ws.onopen = () => {
+                ws.send(JSON.stringify({
+                    type: "join_room",
+                    code: codigoSala,
+                    name: nomeJogador,
+                    playerId: playerId || undefined
+                }));
+            };
+        }
+
         function handleServerMessage(data) {
             switch (data.type) {
                 case "joined_room":
+                    sessionStorage.setItem(STORAGE_ROOM, data.code);
+                    sessionStorage.setItem(STORAGE_NAME, document.getElementById("nomeJogadorInput").value.trim());
+                    if (data.playerId) {
+                        sessionStorage.setItem(STORAGE_ID, data.playerId);
+                    }
                     showMessage("Você entrou na sala com sucesso!", false);
-                    // redirecionar para a página da sala de espera
+                    window.location.href = "salaDeEspera.html";
                     break;
                 case "error":
                     showMessage(data.message || "Erro desconhecido.", true);
@@ -106,7 +133,6 @@
             element.innerText = text;
             element.className = isError ? "text-center text-danger" : "text-center text-success";
         }
-
     </script>
 </body>
 </html>

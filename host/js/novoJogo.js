@@ -1,3 +1,5 @@
+let loadedQuiz = null;
+
 function loadJSON() {
     const fileInput = document.getElementById("fileInput");
     const file = fileInput.files[0];
@@ -12,6 +14,7 @@ function loadJSON() {
     reader.onload = function(e) {
         try {
             const data = JSON.parse(e.target.result);
+            loadedQuiz = data;
             renderQuiz(data);
         } catch (err) {
             alert("JSON inválido.");
@@ -61,4 +64,35 @@ function renderQuiz(questions) {
         card.appendChild(body);
         container.appendChild(card);
     });
+
+    const prosseguirBtn = document.createElement("button");
+    prosseguirBtn.innerText = "Prosseguir";
+    prosseguirBtn.className = "btn btn-success w-100 mb-3";
+    prosseguirBtn.onclick = createRoom;
+
+    container.appendChild(prosseguirBtn);
+}
+
+function createRoom() {
+    if (!loadedQuiz) {
+        alert("Carregue primeiro o quiz antes de prosseguir.");
+        return;
+    }
+
+    const roomCode = generateRoomCode();
+    sessionStorage.setItem("quizData", JSON.stringify(loadedQuiz));
+    sessionStorage.setItem("quizRoomCode", roomCode);
+
+    window.location.href = `salaDeEspera.html?code=${roomCode}`;
+}
+
+function generateRoomCode() {
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let code = "";
+
+    for (let i = 0; i < 4; i++) {
+        code += chars[Math.floor(Math.random() * chars.length)];
+    }
+
+    return code;
 }
