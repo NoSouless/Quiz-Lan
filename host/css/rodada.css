@@ -1,0 +1,84 @@
+body {
+    background: linear-gradient(135deg, #46178f, #6c2bd9);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px;
+}
+
+
+.rodada-container {
+    background: white;
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 40px;
+    width: 100%;
+    max-width: 800px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+
+.pergunta-texto {
+    font-size: 2rem;
+    margin-bottom: 40px;
+    color: #000000; 
+    font-weight: bold; 
+    text-shadow: none; 
+}
+
+
+.alternativas-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 15px;
+    width: 100%;
+}
+
+
+.alternativa-btn {
+    background-color: var(--cor-alt); 
+    border: none;
+    border-radius: 8px;
+    padding: 40px;
+    cursor: pointer;
+    transition: transform 0.2s, filter 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+}
+
+.alternativa-btn:hover {
+    transform: scale(1.03);
+    filter: brightness(1.1);
+}
+
+.alternativa-btn:active {
+    transform: translateY(4px);
+    box-shadow: none;
+}
+
+
+.forma-icon {
+    font-size: 16px;
+    color: white;
+}
+
+
+.timer-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 6px;
+    background: #28c76f; 
+    width: 100%;
+    animation: countdown 20s linear forwards; 
+}

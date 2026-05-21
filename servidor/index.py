@@ -68,10 +68,11 @@ async def handler(websocket):
                 if not room:
                     room = {
                         "quiz": quiz,
-                        "players": [],
+                        "players": {},
                         "open": True,
                         "host": websocket,
-                        "clients": {websocket}
+                        "clients": {websocket},
+                        "current_round": -1
                     }
                     rooms[code] = room
                 else:
@@ -79,6 +80,7 @@ async def handler(websocket):
                     room["quiz"] = quiz
                     room["open"] = True
                     room["clients"].add(websocket)
+                    room["current_round"] = -1
 
                 client_room[websocket] = code
 
@@ -86,13 +88,13 @@ async def handler(websocket):
                     "type": "room_created",
                     "code": code,
                     "open": room["open"],
-                    "players": room["players"]
+                    "players": list(room["players"].keys())
                 }))
                 await broadcast_room(code, {
                     "type": "room_update",
                     "code": code,
                     "open": room["open"],
-                    "players": room["players"]
+                    "players": list(room["players"].keys())
                 })
 
             elif message_type == "join_room":
@@ -116,24 +118,48 @@ async def handler(websocket):
                     await send_error(websocket, "Nome de jogador já usado.")
                     continue
 
-                room["players"].append(name)
+                room["players"][name] = websocket
                 room["clients"].add(websocket)
                 client_room[websocket] = code
 
-                await websocket.send(json.dumps({
+                await broadcast_room(code, {
                     "type": "joined_room",
                     "code": code,
-                    "players": room["players"],
-                    "open": room["open"]
-                }))
-                await broadcast_room(code, {
-                    "type": "room_update",
-                    "code": code,
-                    "players": room["players"],
+                    "players": list(room["players"].keys()),
                     "open": room["open"]
                 })
 
-            elif message_type == "close_room":
+            elif message_type == "rejoin_room":
+                code = message.get("code", "").strip().upper()
+                name = message.get("name", "").strip()
+                print(code, name)
+
+                if not code or not name:
+                    await send_error(websocket, "Código de sala ou nome ausente.")
+                    continue
+
+                room = rooms.get(code)
+                if not room:
+                    await send_error(websocket, "Sala não encontrada.")
+                    continue
+
+                if name not in room["players"]:
+                    await send_error(websocket, "Nome de jogador não encontrado na sala.")
+                    continue
+
+                room["clients"].add(websocket)
+                room["players"][name] = websocket
+                client_room[websocket] = code
+
+                await broadcast_room(code, {
+                    "type": "rejoined_room",
+                    "code": code,
+                    "players": list(room["players"].keys()),
+                    "open": room["open"]
+                })
+
+
+            elif message_type == "start_round":
                 code = message.get("code", "").strip().upper()
                 room = rooms.get(code)
 
@@ -142,15 +168,29 @@ async def handler(websocket):
                     continue
 
                 if websocket != room.get("host"):
-                    await send_error(websocket, "Apenas o host pode fechar a sala.")
+                    await send_error(websocket, "Apenas o host pode iniciar a rodada.")
                     continue
 
                 room["open"] = False
+                room["current_round"] = room.get("current_round", -1) + 1
+
+                if room["current_round"] >= len(room["quiz"]):
+                    await broadcast_room(code, {"type": "game_over"})
+                    continue
+                clients_info = [str(client.remote_address) for client in room["clients"]]
+                # question = room["quiz"][room["current_round"]]
                 await broadcast_room(code, {
-                    "type": "room_closed",
+                    "type": "round_started",
                     "code": code,
-                    "players": room["players"],
-                    "open": room["open"]
+                    "round": room["current_round"] + 1,
+                    "indexRound": room["current_round"],
+                    # "question": question["question"],
+                    # "options": question["options"],
+                    "totalRounds": len(room["quiz"]),
+                    "players": list(room["players"].keys()),
+                    "open": room["open"],
+                    "clients": clients_info,
+                    "quiz": room["quiz"]
                 })
 
             else:

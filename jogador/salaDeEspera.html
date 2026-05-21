@@ -22,4 +22,47 @@
         </div>
     </div>
 </body>
+
+<script>
+    ws = new WebSocket("ws://localhost:8765");
+    ws.onerror = (error) => {
+        console.error("Erro ao conectar ao WebSocket:", error);
+        return false;
+    };
+    ws.onopen = () => {
+        console.log("Conectado ao WebSocket");
+        console.log(sessionStorage.getItem("quizRoomCode"), sessionStorage.getItem("quizPlayerName"));
+        ws.send(JSON.stringify({
+            "type": "rejoin_room",
+            "code": sessionStorage.getItem("quizRoomCode"),
+            "name": sessionStorage.getItem("quizPlayerName")
+        }));
+    };
+
+    ws.onmessage = (event) => {
+            try {
+                console.log(event.data);
+                const data = JSON.parse(event.data);
+                handleServerMessage(data);
+            } catch (err) {
+                console.error("Mensagem inválida do servidor", err);
+            }
+        };
+
+    function handleServerMessage(data) {
+        switch(data.type) {
+            case "round_started":
+                sessionStorage.setItem("roundData", JSON.stringify(data));
+                console.log(data);
+                window.location.href = "jogarRodada.html";
+                break;
+            case "rejoined_room":
+                console.log("Reconectado à sala:", data);
+                break;
+             case "error":
+                alert(data.message || "Erro desconhecido.");
+                break;
+        }
+    }
+</script>
 </html>

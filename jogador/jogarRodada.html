@@ -16,7 +16,7 @@
             
             <div class="rodada-container shadow">
                 <div class="timer-bar"></div>
-
+                <h5 class="text-dark" id="rodadaAtual">1/10</h5>
                 <h2 class="pergunta-texto mt-3">Qual a capital da França?</h2>
                 
                 <div class="alternativas-grid">
@@ -40,6 +40,91 @@
 </div>
 
 <script src="js/jogarRodada.js"></script>
+<script>
+    window.addEventListener("load", () => {
+        const roundData = JSON.parse(sessionStorage.getItem("roundData"));
+        if (!roundData) {
+            alert("Dados da rodada não encontrados. Retornando para a sala de espera.");
+            window.location.href = "salaDeEspera.html";
+            return;
+        }
+
+        document.querySelector(".pergunta-texto").textContent = roundData.quiz[roundData.indexRound].question;
+        document.getElementById("rodadaAtual").textContent = `${roundData.round}/${roundData.totalRounds}`;
+        const alternativas = roundData.quiz[roundData.indexRound].options;
+        const buttons = document.querySelectorAll(".alternativa-btn");
+        buttons.forEach((btn, idx) => {
+            if (idx >= alternativas.length) {
+                btn.style.display = "none"; // Esconde botões extras
+                return;
+            }
+            btn.querySelector(".forma-icon").textContent = alternativas[idx]; // Supondo que cada alternativa tenha um ícone definido
+            // btn.onclick = () => {
+            //     // Enviar resposta para o servidor
+            //     ws.send(JSON.stringify({
+            //         type: "submit_answer",
+            //         code: roundData.code,
+            //         answer: alternativas[idx]
+            //     }));
+            // };
+        });
+
+        const timerBar = document.querySelector('.timer-bar');
+        if (!timerBar) return;
+
+        timerBar.addEventListener('animationend', (e) => {
+            if(roundData.round < roundData.totalRounds) {
+                roundData.indexRound++;
+                roundData.round++;
+                sessionStorage.setItem("roundData", JSON.stringify(roundData));
+                window.location.href = "jogarRodada.html";
+            } else {
+                sessionStorage.removeItem("roundData");
+                window.location.href = "colocacaoFinal.html";
+            }
+        });
+    })
+    ws = new WebSocket("ws://localhost:8765");
+    ws.onerror = (error) => {
+        console.error("Erro ao conectar ao WebSocket:", error);
+        return false;
+    };
+    ws.onopen = () => {
+        console.log("Conectado ao WebSocket");
+        console.log(sessionStorage.getItem("quizRoomCode"), sessionStorage.getItem("quizPlayerName"));
+        ws.send(JSON.stringify({
+            "type": "rejoin_room",
+            "code": sessionStorage.getItem("quizRoomCode"),
+            "name": sessionStorage.getItem("quizPlayerName")
+        }));
+    };
+
+    ws.onmessage = (event) => {
+        try {
+            console.log(event.data);
+            const data = JSON.parse(event.data);
+            handleServerMessage(data);
+        } catch (err) {
+            console.error("Mensagem inválida do servidor", err);
+        }
+    };
+
+    function handleServerMessage(data) {
+        switch(data.type) {
+            case "round_started":
+                sessionStorage.setItem("roundData", JSON.stringify(data));
+                console.log(data);
+                // window.location.href = "jogarRodada.html";
+                break;
+            case "rejoined_room":
+                console.log("Reconectado à sala:", data);
+                break;
+             case "error":
+                alert(data.message || "Erro desconhecido.");
+                break;
+        }
+    }
+</script>
 
 </body>
 </html>

@@ -40,6 +40,7 @@ function connectSocket() {
 
     ws.onmessage = (event) => {
         try {
+            console.log(event.data);
             const data = JSON.parse(event.data);
             handleServerMessage(data);
         } catch (err) {
@@ -80,11 +81,16 @@ function handleServerMessage(data) {
             setPlayers(data.players || []);
             showMessage("Jogador entrou na sala.", false);
             break;
-        case "room_closed":
-            setRoomStatus("Fechada");
-            setStartButton(false);
-            showMessage("A sala foi fechada. Nenhum jogador pode entrar.", true);
-            // redirecionar para a página da rodada
+        // case "room_closed":
+        //     setRoomStatus("Fechada");
+        //     setStartButton(false);
+        //     showMessage("A sala foi fechada. Nenhum jogador pode entrar.", true);
+        //     window.location.href = "rodada.html";
+        //     break;
+        case "round_started":
+            showMessage("A rodada foi iniciada.", false);
+            sessionStorage.setItem("roundData", JSON.stringify(data));
+            // window.location.href = "rodada.html";
             break;
         case "error":
             showMessage(data.message || "Erro desconhecido.", true);
@@ -123,20 +129,32 @@ function setStartButton(enabled) {
     button.disabled = !enabled;
 }
 
-function sendCloseRoom() {
+// function sendCloseRoom() {
+//     if (!ws || ws.readyState !== WebSocket.OPEN) {
+//         showMessage("Servidor indisponível. Recarregue a página.", true);
+//         return;
+//     }
+
+//     ws.send(JSON.stringify({
+//         type: "close_room",
+//         code: roomCode
+//     }));
+// }
+
+function showMessage(text, isError) {
+    const element = document.getElementById("message");
+    element.innerText = text;
+    element.className = isError ? "text-center text-danger" : "text-center text-success";
+}
+
+function sendStartRound() {
     if (!ws || ws.readyState !== WebSocket.OPEN) {
         showMessage("Servidor indisponível. Recarregue a página.", true);
         return;
     }
 
     ws.send(JSON.stringify({
-        type: "close_room",
+        type: "start_round",
         code: roomCode
     }));
-}
-
-function showMessage(text, isError) {
-    const element = document.getElementById("message");
-    element.innerText = text;
-    element.className = isError ? "text-center text-danger" : "text-center text-success";
 }

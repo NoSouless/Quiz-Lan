@@ -68,7 +68,7 @@ body {
 
 
 .forma-icon {
-    font-size: 3rem;
+    font-size: 16px;
     color: white;
 }
 
@@ -80,5 +80,10 @@ body {
     height: 6px;
     background: #28c76f; 
     width: 100%;
-    animation: countdown 20s linear forwards; 
+    animation: countdown 15s linear forwards; 
+}
+
+@keyframes countdown {
+    from { width: 100%; }
+    to { width: 0; }
 }
