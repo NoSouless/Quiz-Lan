@@ -90,7 +90,11 @@ function handleServerMessage(data) {
         case "round_started":
             showMessage("A rodada foi iniciada.", false);
             sessionStorage.setItem("roundData", JSON.stringify(data));
-            // window.location.href = "rodada.html";
+            window.location.href = "resultadoRodada.html";
+            break;
+        case "game_over":
+            showMessage("Jogo encerrado.", false);
+            window.location.href = "placarFinal.html";
             break;
         case "error":
             showMessage(data.message || "Erro desconhecido.", true);

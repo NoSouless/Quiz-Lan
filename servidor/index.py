@@ -168,8 +168,14 @@ async def handler(websocket):
                     continue
 
                 if websocket != room.get("host"):
-                    await send_error(websocket, "Apenas o host pode iniciar a rodada.")
-                    continue
+                    if room.get("host") is None:
+                        # Permite que o host reassuma o controle após recarregar/navegar de página.
+                        room["host"] = websocket
+                        room["clients"].add(websocket)
+                        client_room[websocket] = code
+                    else:
+                        await send_error(websocket, "Apenas o host pode iniciar a rodada.")
+                        continue
 
                 room["open"] = False
                 room["current_round"] = room.get("current_round", -1) + 1
