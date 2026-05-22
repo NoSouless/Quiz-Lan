@@ -5,23 +5,33 @@ const roundInfo = document.getElementById("roundInfo");
 const btnEncerrarRodada = document.getElementById("btnEncerrarRodada");
 const btnProximaRodada = document.getElementById("btnProximaRodada");
 const btnEncerrarJogo = document.getElementById("btnEncerrarJogo");
+const code = sessionStorage.getItem("quizRoomCode");
 
 window.addEventListener("load", () => {
 	const roundData = getRoundData();
 	if (!roundData) {
 		alert("Dados da rodada não encontrados. Retornando para a sala de espera.");
 		window.location.href = "salaDeEspera.html";
-		return;
+	}
+
+	if (!code) {
+		alert("Código da sala não encontrado.");
+		window.location.href = "salaDeEspera.html";
 	}
 
 	updateRoundInfo(roundData);
-	connectSocket();
+	connectSocket(code);
 });
 
 btnEncerrarRodada.addEventListener("click", () => {
 	statusText.textContent = "Rodada encerrada. Pronto para iniciar a próxima.";
 	btnEncerrarRodada.disabled = true;
 	btnProximaRodada.disabled = false;
+
+	ws.send(JSON.stringify({
+		type: "end_round",
+		code: code
+	}));
 });
 
 btnProximaRodada.addEventListener("click", () => {
@@ -30,15 +40,9 @@ btnProximaRodada.addEventListener("click", () => {
 		return;
 	}
 
-	const code = sessionStorage.getItem("quizRoomCode");
-	if (!code) {
-		alert("Código da sala não encontrado.");
-		return;
-	}
-
 	ws.send(JSON.stringify({
 		type: "start_round",
-		code
+		code: code
 	}));
 
 	statusText.textContent = "Iniciando próxima rodada...";
@@ -62,11 +66,21 @@ function updateRoundInfo(roundData) {
 	roundInfo.textContent = `Rodada ${roundData.round}/${roundData.totalRounds}`;
 }
 
-function connectSocket() {
+function updateStatusText(data) {
+	if (data.type === "player_answer") {
+		statusText.textContent = `Resposta recebida de ${data.name}: ${data.answer}`;
+	}
+}
+
+function connectSocket(code) {
 	ws = new WebSocket("ws://localhost:8765");
 
 	ws.onopen = () => {
 		console.log("Host conectado ao WebSocket na tela de resultado.");
+		ws.send(JSON.stringify({
+			type: "host_rejoin",
+			code: code,
+		}));
 	};
 
 	ws.onmessage = (event) => {
@@ -94,6 +108,14 @@ function handleServerMessage(data) {
 			break;
 		case "game_over":
 			window.location.href = "placarFinal.html";
+			break;
+		case "player_answer":
+			console.log("Resposta recebida:", data);
+			updateStatusText(data);
+			break;
+		case "round_ended":
+			statusText.textContent = "Rodada encerrada. Aguardando para iniciar a próxima.";
+			console.log("Rodada encerrada:", data);
 			break;
 		case "error":
 			alert(data.message || "Erro desconhecido.");

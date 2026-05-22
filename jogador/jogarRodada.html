@@ -49,6 +49,9 @@
             return;
         }
 
+        const startTime = Date.now();
+        const endTime = startTime + roundData.roundDurationMs;
+
         document.querySelector(".pergunta-texto").textContent = roundData.quiz[roundData.indexRound].question;
         document.getElementById("rodadaAtual").textContent = `${roundData.round}/${roundData.totalRounds}`;
         const alternativas = roundData.quiz[roundData.indexRound].options;
@@ -58,72 +61,109 @@
                 btn.style.display = "none"; // Esconde botões extras
                 return;
             }
-            btn.querySelector(".forma-icon").textContent = alternativas[idx]; // Supondo que cada alternativa tenha um ícone definido
-            // btn.onclick = () => {
-            //     // Enviar resposta para o servidor
-            //     ws.send(JSON.stringify({
-            //         type: "submit_answer",
-            //         code: roundData.code,
-            //         answer: alternativas[idx]
-            //     }));
-            // };
+            btn.querySelector(".forma-icon").textContent = alternativas[idx];
+            btn.onclick = () => {
+                if(btn.disabled || btn.classList.contains("selected")) return;
+                const elapsedTime = Date.now() - startTime;
+                const remainingTime = Math.max(0, roundData.roundDurationMs - elapsedTime);
+
+                ws.send(JSON.stringify({
+                    type: "submit_answer",
+                    code: roundData.code,
+                    name: sessionStorage.getItem("quizPlayerName"),
+                    answer: idx,
+                    remainingTime: remainingTime,
+                }));
+
+                buttons.forEach(b => {
+                    if (b !== btn) {
+                        b.disabled = true;
+                    } else {
+                        b.classList.add("selected");
+                    }
+                }); // Desabilita botões após resposta
+                
+                // window.location.href = "salaDeEspera.html";
+            };
         });
 
         const timerBar = document.querySelector('.timer-bar');
         if (!timerBar) return;
 
+        timerBar.style.animationDuration = `${roundData.roundDurationMs / 1000}s`;
+
         timerBar.addEventListener('animationend', (e) => {
-            if(roundData.round < roundData.totalRounds) {
-                roundData.indexRound++;
-                roundData.round++;
-                sessionStorage.setItem("roundData", JSON.stringify(roundData));
-                window.location.href = "jogarRodada.html";
-            } else {
-                sessionStorage.removeItem("roundData");
-                window.location.href = "colocacaoFinal.html";
-            }
+            buttons.forEach(function(btn, idx) {
+                const texto = btn.querySelector(".forma-icon");
+                const icon = idx == roundData.quiz[roundData.indexRound].correct ? "✓" : "✗";
+                texto.textContent = texto.textContent + ` ${icon}`;
+            });
+
+            // if(roundData.round < roundData.totalRounds) {
+            //     roundData.indexRound++;
+            //     roundData.round++;
+            //     sessionStorage.setItem("roundData", JSON.stringify(roundData));
+            //     // window.location.href = "jogarRodada.html";
+            // } else {
+            //     sessionStorage.removeItem("roundData");
+            //     // window.location.href = "colocacaoFinal.html";
+            // }
         });
+
+        ws = new WebSocket("ws://localhost:8765");
+        ws.onerror = (error) => {
+            console.error("Erro ao conectar ao WebSocket:", error);
+            return false;
+        };
+        ws.onopen = () => {
+            console.log("Conectado ao WebSocket");
+            console.log(sessionStorage.getItem("quizRoomCode"), sessionStorage.getItem("quizPlayerName"));
+            ws.send(JSON.stringify({
+                "type": "rejoin_room",
+                "code": sessionStorage.getItem("quizRoomCode"),
+                "name": sessionStorage.getItem("quizPlayerName")
+            }));
+        };
+
+        ws.onmessage = (event) => {
+            try {
+                console.log(event.data);
+                const data = JSON.parse(event.data);
+                handleServerMessage(data);
+            } catch (err) {
+                console.error("Mensagem inválida do servidor", err);
+            }
+        };
+
+        function handleServerMessage(data) {
+            switch(data.type) {
+                case "round_started":
+                    sessionStorage.setItem("roundData", JSON.stringify(data));
+                    console.log(data);
+                    // window.location.href = "jogarRodada.html";
+                    break;
+                case "rejoined_room":
+                    console.log("Reconectado à sala:", data);
+                    break;
+                case "player_answer":
+                    console.log("Resposta:", data);
+                    break;
+                case "round_ended":
+                    console.log("Rodada encerrada:", data);
+                    if(roundData.round < roundData.totalRounds) {
+                        sessionStorage.setItem("roundData", JSON.stringify(data));
+                        window.location.href = "salaDeEspera.html";
+                    } else {
+                        sessionStorage.removeItem("roundData");
+                        window.location.href = "colocacaoFinal.html";
+                    }
+                    break;
+                case "error":
+                    alert(data.message || "Erro desconhecido.");
+                    break;
+            }
+        }
     })
-    ws = new WebSocket("ws://localhost:8765");
-    ws.onerror = (error) => {
-        console.error("Erro ao conectar ao WebSocket:", error);
-        return false;
-    };
-    ws.onopen = () => {
-        console.log("Conectado ao WebSocket");
-        console.log(sessionStorage.getItem("quizRoomCode"), sessionStorage.getItem("quizPlayerName"));
-        ws.send(JSON.stringify({
-            "type": "rejoin_room",
-            "code": sessionStorage.getItem("quizRoomCode"),
-            "name": sessionStorage.getItem("quizPlayerName")
-        }));
-    };
-
-    ws.onmessage = (event) => {
-        try {
-            console.log(event.data);
-            const data = JSON.parse(event.data);
-            handleServerMessage(data);
-        } catch (err) {
-            console.error("Mensagem inválida do servidor", err);
-        }
-    };
-
-    function handleServerMessage(data) {
-        switch(data.type) {
-            case "round_started":
-                sessionStorage.setItem("roundData", JSON.stringify(data));
-                console.log(data);
-                // window.location.href = "jogarRodada.html";
-                break;
-            case "rejoined_room":
-                console.log("Reconectado à sala:", data);
-                break;
-             case "error":
-                alert(data.message || "Erro desconhecido.");
-                break;
-        }
-    }
 </script>
 
 </body>

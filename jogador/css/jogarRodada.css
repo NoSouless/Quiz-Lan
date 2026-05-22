@@ -56,16 +56,20 @@ body {
     box-shadow: 0 4px 0 rgba(0,0,0,0.2);
 }
 
-.alternativa-btn:hover {
+.alternativa-btn:not(:disabled):hover, .alternativa-btn.selected {
     transform: scale(1.03);
     filter: brightness(1.1);
 }
 
-.alternativa-btn:active {
+.alternativa-btn:not(:disabled):not(.selected):active {
     transform: translateY(4px);
     box-shadow: none;
 }
 
+.alternativa-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
 
 .forma-icon {
     font-size: 16px;
@@ -80,7 +84,9 @@ body {
     height: 6px;
     background: #28c76f; 
     width: 100%;
-    animation: countdown 15s linear forwards; 
+    animation-name: countdown;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
 }
 
 @keyframes countdown {
