@@ -4,9 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Placar Final</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/colocacaoFinal.css">
 </head>
 <body>
-    <h1>Placar Final</h1>
-    <p>Aqui será exibida a colocação final dos jogadores após o término do quiz.</p>
+    <div class="container py-5">
+        <div class="row justify-content-center mb-5">
+            <div class="col-12 col-md-8 col-lg-6 text-center">
+                <h1 class="text-white">Colocação Final!</h1>
+            </div>
+        </div>
+        <!-- <div class="row justify-content-center mb-2">
+            <div class="col-12 col-md-8 col-lg-6 d-flex justify-content-between first-place">
+                <h2>Giovanna</h2>
+                <h2>15000</h2>
+            </div>
+        </div>
+        <div class="row justify-content-center mb-2">
+            <div class="col-12 col-md-8 col-lg-6 d-flex justify-content-between">
+                <h2 class="text-white">Isaque</h2>
+                <h2 class="text-white">12000</h2>
+            </div>
+        </div>
+        <div class="row justify-content-center mb-2">
+            <div class="col-12 col-md-8 col-lg-6 d-flex justify-content-between">
+                <h2 class="text-white">Gabriela</h2>
+                <h2 class="text-white">10000</h2>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-6 d-flex justify-content-between">
+                <h2 class="text-white">Gustavo</h2>
+                <h2 class="text-white">8000</h2>
+            </div>
+        </div> -->
+    </div>
+
+    <script>
+        window.addEventListener("load", () => {
+            const roundData = JSON.parse(sessionStorage.getItem("roundData"));
+            if (!roundData) {
+                alert("Dados da rodada não encontrados. Retornando para a sala de espera.");
+                window.location.href = "salaDeEspera.html";
+                return;
+            }
+
+            Object.entries(roundData.scores).forEach(([key, value]) => {
+                const isFirstPlace = key === Object.keys(roundData.scores)[0];
+                const row = document.createElement("div");
+                row.classList.add("row", "justify-content-center", "mb-3");
+
+                const col = document.createElement("div");
+                col.classList.add("col-12", "col-md-8", "col-lg-6", "d-flex", "justify-content-between");
+                if (isFirstPlace) col.classList.add("first-place");
+
+                const name = document.createElement("h2");
+                name.textContent = key;
+                if (!isFirstPlace) name.classList.add("text-white");
+
+                const score = document.createElement("h2");
+                score.textContent = value;
+                if (!isFirstPlace) score.classList.add("text-white");
+
+                col.appendChild(name);
+                col.appendChild(score);
+                row.appendChild(col);
+                document.querySelector(".container").appendChild(row);
+            });
+        });
+    </script>
 </body>
 </html>

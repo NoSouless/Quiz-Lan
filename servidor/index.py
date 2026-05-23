@@ -81,7 +81,7 @@ async def handler(websocket):
                     room["open"] = True
                     room["clients"].add(websocket)
                     room["current_round"] = -1
-                print("host (create_room):", room.get("host"))
+
                 client_room[websocket] = code
 
                 await broadcast_room(code, {
@@ -106,7 +106,6 @@ async def handler(websocket):
                 room["host"] = websocket
                 room["clients"].add(websocket)
                 client_room[websocket] = code
-                print("host (host_rejoin):", room.get("host"))
 
                 await broadcast_room(code, {
                     "type": "host_rejoined",
@@ -129,7 +128,7 @@ async def handler(websocket):
                 if not room:
                     await send_error(websocket, "Sala não encontrada.")
                     continue
-                print("host (join_room):", room.get("host"))
+
                 if not room.get("open"):
                     await send_error(websocket, "A sala já está fechada.")
                     continue
@@ -158,7 +157,7 @@ async def handler(websocket):
                     continue
 
                 room = rooms.get(code)
-                print("host (rejoin_room):", room.get("host"))
+
                 # if not room:
                 #     print(f"Sala {code} não encontrada para reentrada.")
                 #     print(f"Salas atuais: {list(rooms.keys())}")
@@ -240,13 +239,10 @@ async def handler(websocket):
                 if name not in room["players"]:
                     await send_error(websocket, "Nome de jogador não encontrado na sala.")
                     continue
-                print("resposta do usuario:", answer)
-                print("resposta correta:", room["quiz"][room["current_round"]]["correct"])
+
                 if message.get("answer") == room["quiz"][room["current_round"]]["correct"]:
                     room["players"][name]["score"] = room["players"][name].get("score", 0) + message.get("remainingTime")
                 
-                print("host (submit_answer):", room.get("host"))
-                # Por simplicidade, este exemplo apenas retransmite a resposta para o host.
                 host_ws = room.get("host")
                 if host_ws and host_ws != websocket:
                     await host_ws.send(json.dumps({
@@ -267,7 +263,7 @@ async def handler(websocket):
             elif message_type == "end_round":
                 code = message.get("code", "").strip().upper()
                 room = rooms.get(code)
-                print("host (end_round):", room.get("host"))
+
                 if not room:
                     await send_error(websocket, "Sala não encontrada.")
                     continue
@@ -289,7 +285,13 @@ async def handler(websocket):
                     "indexRound": room["current_round"],
                     "totalRounds": len(room["quiz"]),
                     "players": list(room["players"].keys()),
-                    "scores": {name: info.get("score", 0) for name, info in room["players"].items()}
+                    "scores": dict(
+                        sorted(
+                            ((name, info.get("score", 0)) for name, info in room["players"].items()),
+                            key=lambda item: item[1],
+                            reverse=True
+                        )
+                    )
                 })
 
             else:
