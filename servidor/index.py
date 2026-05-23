@@ -279,7 +279,7 @@ async def handler(websocket):
                         continue
 
                 await broadcast_room(code, {
-                    "type": "round_ended",
+                    "type": room["current_round"] + 1 < len(room["quiz"]) and "round_ended" or "game_over",
                     "code": code,
                     "round": room["current_round"] + 1,
                     "indexRound": room["current_round"],

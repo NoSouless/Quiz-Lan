@@ -1,0 +1,10 @@
+body {
+    background: linear-gradient(135deg, #46178f, #6c2bd9);
+}
+
+.first-place {
+    background-color: white;
+    border-radius: 8px;
+    padding-top: 5px;
+    color: #212529;
+}

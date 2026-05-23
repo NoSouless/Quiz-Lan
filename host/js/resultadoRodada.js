@@ -6,9 +6,10 @@ const btnEncerrarRodada = document.getElementById("btnEncerrarRodada");
 const btnProximaRodada = document.getElementById("btnProximaRodada");
 const btnEncerrarJogo = document.getElementById("btnEncerrarJogo");
 const code = sessionStorage.getItem("quizRoomCode");
+const roundData = getRoundData();
+console.log(roundData);
 
 window.addEventListener("load", () => {
-	const roundData = getRoundData();
 	if (!roundData) {
 		alert("Dados da rodada não encontrados. Retornando para a sala de espera.");
 		window.location.href = "salaDeEspera.html";
@@ -50,7 +51,15 @@ btnProximaRodada.addEventListener("click", () => {
 });
 
 btnEncerrarJogo.addEventListener("click", () => {
-	window.location.href = "placarFinal.html";
+	if (!ws || ws.readyState !== WebSocket.OPEN) {
+		alert("Servidor indisponível. Recarregue a página.");
+		return;
+	}
+
+	ws.send(JSON.stringify({
+		type: "end_round",
+		code: code
+	}));
 });
 
 function getRoundData() {
@@ -76,7 +85,7 @@ function connectSocket(code) {
 	ws = new WebSocket("ws://localhost:8765");
 
 	ws.onopen = () => {
-		console.log("Host conectado ao WebSocket na tela de resultado.");
+		// console.log("Host conectado ao WebSocket na tela de resultado.");
 		ws.send(JSON.stringify({
 			type: "host_rejoin",
 			code: code,
@@ -103,19 +112,19 @@ function handleServerMessage(data) {
 			sessionStorage.setItem("roundData", JSON.stringify(data));
 			updateRoundInfo(data);
 			statusText.textContent = "Esperando os Jogadores responderem...";
-			btnEncerrarRodada.disabled = false;
 			btnProximaRodada.disabled = true;
+			console.log(data.round, data.totalRounds);
+			if(data.round < data.totalRounds) btnEncerrarRodada.disabled = false;
 			break;
 		case "game_over":
-			window.location.href = "placarFinal.html";
+			sessionStorage.setItem("roundData", JSON.stringify(data));
+			window.location.href = "/partida/placarFinal.html";
 			break;
 		case "player_answer":
-			console.log("Resposta recebida:", data);
 			updateStatusText(data);
 			break;
 		case "round_ended":
 			statusText.textContent = "Rodada encerrada. Aguardando para iniciar a próxima.";
-			console.log("Rodada encerrada:", data);
 			break;
 		case "error":
 			alert(data.message || "Erro desconhecido.");

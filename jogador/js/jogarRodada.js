@@ -88,14 +88,11 @@ window.addEventListener("load", () => {
                 console.log("Resposta:", data);
                 break;
             case "round_ended":
-                console.log("Rodada encerrada:", data);
-                if(roundData.round < roundData.totalRounds) {
-                    // sessionStorage.setItem("roundData", JSON.stringify(data));
-                    window.location.href = "salaDeEspera.html";
-                } else {
-                    sessionStorage.setItem("roundData", JSON.stringify(data));
-                    window.location.href = "colocacaoFinal.html";
-                }
+                window.location.href = "salaDeEspera.html";
+                break;
+            case "game_over":
+                sessionStorage.setItem("roundData", JSON.stringify(data));
+                window.location.href = "/partida/placarFinal.html";
                 break;
             case "error":
                 alert(data.message || "Erro desconhecido.");
