@@ -6,6 +6,9 @@ window.addEventListener("load", () => {
         return;
     }
 
+    let duration = 750;
+    let distance = 40;
+
     Object.entries(roundData.scores).forEach(([key, value]) => {
         const isFirstPlace = key === Object.keys(roundData.scores)[0];
         const row = document.createElement("div");
@@ -26,6 +29,16 @@ window.addEventListener("load", () => {
         col.appendChild(name);
         col.appendChild(score);
         row.appendChild(col);
+        
         document.querySelector(".container").appendChild(row);
+        ScrollReveal().reveal(col, {
+            duration: duration,
+            origin: 'bottom',
+            distance: `${distance}px`,
+            easing: 'ease-in-out',
+            reset: true
+        });
+        duration += 300; // Incrementa o tempo para o próximo elemento
+        distance += 10; // Incrementa a distância para o próximo elemento
     });
 });
