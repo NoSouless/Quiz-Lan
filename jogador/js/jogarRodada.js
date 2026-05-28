@@ -92,7 +92,7 @@ window.addEventListener("load", () => {
                 break;
             case "game_over":
                 sessionStorage.setItem("roundData", JSON.stringify(data));
-                window.location.href = "/partida/placarFinal.html";
+                window.location.href = "../partida/placarFinal.html";
                 break;
             case "error":
                 alert(data.message || "Erro desconhecido.");

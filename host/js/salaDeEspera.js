@@ -94,7 +94,7 @@ function handleServerMessage(data) {
             break;
         case "game_over":
             showMessage("Jogo encerrado.", false);
-            window.location.href = "placarFinal.html";
+            window.location.href = "../partida/placarFinal.html";
             break;
         case "error":
             showMessage(data.message || "Erro desconhecido.", true);

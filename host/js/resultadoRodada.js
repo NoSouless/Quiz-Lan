@@ -118,7 +118,7 @@ function handleServerMessage(data) {
 			break;
 		case "game_over":
 			sessionStorage.setItem("roundData", JSON.stringify(data));
-			window.location.href = "/partida/placarFinal.html";
+			window.location.href = "../partida/placarFinal.html";
 			break;
 		case "player_answer":
 			updateStatusText(data);
